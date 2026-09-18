@@ -1,0 +1,50 @@
+name: terraform
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - envs/**
+      - modules/**
+  workflow_dispatch: {}
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - working-directory: envs/dev
+        run: |
+          terraform init -input=false
+          terraform plan -no-color -input=false
+
+  apply:
+    needs: plan
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - working-directory: envs/dev
+        run: |
+          terraform init -input=false
+          terraform apply -auto-approve -input=false
