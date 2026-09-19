@@ -18,3 +18,10 @@ module "data" {
   data_subnet_ids = module.networking.data_subnet_ids
   data_sg_id      = module.security.data_sg_id
 }
+
+module "backend" {
+  source = "../../modules/backend"
+
+  project       = var.project_name
+  db_secret_arn = module.data.db_secret_arn
+}
