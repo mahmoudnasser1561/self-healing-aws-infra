@@ -48,3 +48,22 @@ jobs:
         run: |
           terraform init -input=false
           terraform apply -auto-approve -input=false
+
+  destroy:
+    needs: apply
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - working-directory: envs/dev
+        run: |
+          terraform init -input=false
+          terraform destroy -auto-approve -input=false
