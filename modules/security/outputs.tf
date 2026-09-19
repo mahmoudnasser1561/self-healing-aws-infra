@@ -5,3 +5,7 @@ output "app_sg_id" {
 output "data_sg_id" {
   value = aws_security_group.data.id
 }
+
+output "alb_sg_id" {
+  value = aws_security_group.alb.id
+}

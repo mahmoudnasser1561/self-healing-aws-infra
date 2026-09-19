@@ -17,3 +17,13 @@ resource "aws_security_group" "data" {
     Name = "${var.project}-data"
   }
 }
+
+resource "aws_security_group" "alb" {
+  name        = "${var.project}-alb"
+  description = "Load balancer"
+  vpc_id      = var.vpc_id
+
+  tags = {
+    Name = "${var.project}-alb"
+  }
+}
