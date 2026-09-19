@@ -39,3 +39,8 @@ variable "github_environment" {
   type        = string
   default     = "prod"
 }
+
+variable "github_backend_branch" {
+  type    = string
+  default = "backend"
+}
