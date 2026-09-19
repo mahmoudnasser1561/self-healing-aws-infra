@@ -1,52 +1,58 @@
 import contextlib
 import json
-import os
+from pathlib import Path
 
 import boto3
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
-from .seed import COMPONENTS, INSERT, SCHEMA
+SCHEMA = (Path(__file__).resolve().parent / "schema.sql").read_text()
+CONNECT_TIMEOUT_SECONDS = 3
 
 
 class Database:
-    def __init__(self):
-        self._ready = False
+    def __init__(self, settings, credentials_loader=None):
+        self._settings = settings
+        self._load_credentials = credentials_loader or self._read_credentials
+        self._secrets = None
+        self._schema_ready = False
 
-    def _credentials(self):
-        if os.environ.get("DB_PASSWORD"):
-            return os.environ.get("DB_USER", "postgres"), os.environ["DB_PASSWORD"]
-        client = boto3.client(
-            "secretsmanager", region_name=os.environ.get("AWS_REGION", "us-east-1")
-        )
-        secret = client.get_secret_value(SecretId=os.environ["DB_SECRET_ARN"])
+    def _read_credentials(self):
+        settings = self._settings
+        if settings.db_password:
+            return settings.db_user, settings.db_password
+        if self._secrets is None:
+            self._secrets = boto3.client(
+                "secretsmanager", region_name=settings.aws_region
+            )
+        secret = self._secrets.get_secret_value(SecretId=settings.db_secret_arn)
         data = json.loads(secret["SecretString"])
         return data["username"], data["password"]
 
-    def _prepare(self, conn):
-        if self._ready:
+    def _ensure_schema(self, conn):
+        if self._schema_ready:
             return
         with conn.cursor() as cur:
             cur.execute(SCHEMA)
-            cur.executemany(INSERT, COMPONENTS)
         conn.commit()
-        self._ready = True
+        self._schema_ready = True
 
     @contextlib.contextmanager
     def connection(self):
-        user, password = self._credentials()
+        user, password = self._load_credentials()
+        settings = self._settings
         conn = psycopg2.connect(
-            host=os.environ["DB_HOST"],
-            port=int(os.environ.get("DB_PORT", "5432")),
-            dbname=os.environ.get("DB_NAME", "app"),
+            host=settings.db_host,
+            port=settings.db_port,
+            dbname=settings.db_name,
             user=user,
             password=password,
-            sslmode=os.environ.get("DB_SSLMODE", "require"),
-            connect_timeout=3,
+            sslmode=settings.db_sslmode,
+            connect_timeout=CONNECT_TIMEOUT_SECONDS,
             cursor_factory=RealDictCursor,
         )
         try:
-            self._prepare(conn)
+            self._ensure_schema(conn)
             yield conn
             conn.commit()
         except Exception:
