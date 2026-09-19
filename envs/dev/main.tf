@@ -22,6 +22,8 @@ module "data" {
 module "backend" {
   source = "../../modules/backend"
 
-  project       = var.project_name
-  db_secret_arn = module.data.db_secret_arn
+  project           = var.project_name
+  public_subnet_ids = module.networking.public_subnet_ids
+  alb_sg_id         = module.security.alb_sg_id
+  db_secret_arn     = module.data.db_secret_arn
 }
