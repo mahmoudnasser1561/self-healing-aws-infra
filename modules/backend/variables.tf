@@ -25,3 +25,7 @@ variable "app_sg_id" {
 variable "db_address" {
   type = string
 }
+
+variable "app_subnet_ids" {
+  type = list(string)
+}

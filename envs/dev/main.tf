@@ -25,6 +25,7 @@ module "backend" {
   project           = var.project_name
   vpc_id            = module.networking.vpc_id
   public_subnet_ids = module.networking.public_subnet_ids
+  app_subnet_ids    = module.networking.app_subnet_ids
   alb_sg_id         = module.security.alb_sg_id
   app_sg_id         = module.security.app_sg_id
   db_address        = module.data.db_address
