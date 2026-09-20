@@ -339,26 +339,9 @@ resource "aws_iam_role_policy_attachment" "github_actions_platform" {
 
 data "aws_iam_policy_document" "github_actions_backend" {
   statement {
-    sid    = "Ec2Compute"
-    effect = "Allow"
-    actions = [
-      "ec2:CreateLaunchTemplate",
-      "ec2:CreateLaunchTemplateVersion",
-      "ec2:DeleteLaunchTemplate",
-      "ec2:DeleteLaunchTemplateVersions",
-      "ec2:DescribeAccountAttributes",
-      "ec2:DescribeImages",
-      "ec2:DescribeInstanceAttribute",
-      "ec2:DescribeInstances",
-      "ec2:DescribeInstanceStatus",
-      "ec2:DescribeInstanceTypes",
-      "ec2:DescribeLaunchTemplates",
-      "ec2:DescribeLaunchTemplateVersions",
-      "ec2:DescribeVolumes",
-      "ec2:GetLaunchTemplateData",
-      "ec2:ModifyLaunchTemplate",
-      "ec2:RunInstances",
-    ]
+    sid       = "Ec2Compute"
+    effect    = "Allow"
+    actions   = ["ec2:*LaunchTemplate*", "ec2:Describe*", "ec2:GetLaunchTemplateData", "ec2:RunInstances"]
     resources = ["*"]
 
     condition {
@@ -369,28 +352,9 @@ data "aws_iam_policy_document" "github_actions_backend" {
   }
 
   statement {
-    sid    = "LoadBalancing"
-    effect = "Allow"
-    actions = [
-      "elasticloadbalancing:AddTags",
-      "elasticloadbalancing:CreateListener",
-      "elasticloadbalancing:CreateLoadBalancer",
-      "elasticloadbalancing:CreateTargetGroup",
-      "elasticloadbalancing:DeleteListener",
-      "elasticloadbalancing:DeleteLoadBalancer",
-      "elasticloadbalancing:DeleteTargetGroup",
-      "elasticloadbalancing:Describe*",
-      "elasticloadbalancing:DeregisterTargets",
-      "elasticloadbalancing:ModifyListener",
-      "elasticloadbalancing:ModifyListenerAttributes",
-      "elasticloadbalancing:ModifyLoadBalancerAttributes",
-      "elasticloadbalancing:ModifyTargetGroup",
-      "elasticloadbalancing:ModifyTargetGroupAttributes",
-      "elasticloadbalancing:RegisterTargets",
-      "elasticloadbalancing:RemoveTags",
-      "elasticloadbalancing:SetSecurityGroups",
-      "elasticloadbalancing:SetSubnets",
-    ]
+    sid       = "LoadBalancing"
+    effect    = "Allow"
+    actions   = ["elasticloadbalancing:*"]
     resources = ["*"]
 
     condition {
@@ -401,19 +365,9 @@ data "aws_iam_policy_document" "github_actions_backend" {
   }
 
   statement {
-    sid    = "AutoScaling"
-    effect = "Allow"
-    actions = [
-      "autoscaling:CreateAutoScalingGroup",
-      "autoscaling:CreateOrUpdateTags",
-      "autoscaling:DeleteAutoScalingGroup",
-      "autoscaling:DeletePolicy",
-      "autoscaling:DeleteTags",
-      "autoscaling:Describe*",
-      "autoscaling:PutScalingPolicy",
-      "autoscaling:SetDesiredCapacity",
-      "autoscaling:UpdateAutoScalingGroup",
-    ]
+    sid       = "AutoScaling"
+    effect    = "Allow"
+    actions   = ["autoscaling:*"]
     resources = ["*"]
 
     condition {
