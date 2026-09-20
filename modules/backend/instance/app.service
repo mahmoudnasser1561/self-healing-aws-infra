@@ -1,0 +1,15 @@
+[Unit]
+Description=To-do API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=app
+WorkingDirectory=/opt/app/src
+EnvironmentFile=/etc/app.env
+ExecStart=/opt/app/venv/bin/gunicorn -c gunicorn.conf.py wsgi:app
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

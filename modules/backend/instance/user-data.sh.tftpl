@@ -1,0 +1,36 @@
+#!/bin/bash
+set -euo pipefail
+
+dnf install -y python3.11 python3.11-pip amazon-cloudwatch-agent
+useradd --system --home-dir /opt/app --shell /sbin/nologin app
+mkdir -p /opt/app /var/log/app
+chown app:app /opt/app /var/log/app
+
+cat > /etc/app.env <<'ENV'
+DB_HOST=${db_host}
+DB_SECRET_ARN=${db_secret_arn}
+AWS_REGION=${region}
+RELEASE_BUCKET=${bucket}
+ENV
+
+cat > /usr/local/bin/deploy-release <<'SCRIPT'
+${deploy_script}
+SCRIPT
+chmod 0755 /usr/local/bin/deploy-release
+
+cat > /etc/systemd/system/app.service <<'UNIT'
+${service_unit}
+UNIT
+systemctl daemon-reload
+systemctl enable app
+
+until /usr/local/bin/deploy-release; do
+  sleep 15
+done
+
+cat > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json <<'AGENT'
+${agent_config}
+AGENT
+/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+  -a fetch-config -m ec2 -s \
+  -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
