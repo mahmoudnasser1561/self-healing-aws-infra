@@ -5,6 +5,9 @@ set -a
 . /etc/app.env
 set +a
 
+exec 9>/var/lock/deploy-release.lock
+flock 9
+
 aws s3 cp "s3://$RELEASE_BUCKET/releases/latest.tar.gz" /tmp/release.tar.gz --only-show-errors
 rm -rf /opt/app/src
 mkdir /opt/app/src
