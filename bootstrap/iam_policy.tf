@@ -378,6 +378,16 @@ data "aws_iam_policy_document" "github_actions_backend" {
   }
 
   statement {
+    sid     = "AlbLogsBucket"
+    effect  = "Allow"
+    actions = ["s3:*"]
+    resources = [
+      "arn:aws:s3:::${var.project}-alb-logs-*",
+      "arn:aws:s3:::${var.project}-alb-logs-*/*",
+    ]
+  }
+
+  statement {
     sid     = "ReleasesBucket"
     effect  = "Allow"
     actions = ["s3:*"]

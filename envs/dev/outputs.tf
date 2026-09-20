@@ -25,3 +25,11 @@ output "frontend_bucket" {
 output "waf_log_group" {
   value = module.frontend.waf_log_group
 }
+
+output "alb_logs_bucket" {
+  value = module.backend.alb_logs_bucket
+}
+
+output "cloudfront_logs_bucket" {
+  value = module.frontend.cloudfront_logs_bucket
+}

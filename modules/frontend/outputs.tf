@@ -13,3 +13,7 @@ output "distribution_id" {
 output "waf_log_group" {
   value = aws_cloudwatch_log_group.waf.name
 }
+
+output "cloudfront_logs_bucket" {
+  value = aws_s3_bucket.logs.id
+}

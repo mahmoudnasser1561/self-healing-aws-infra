@@ -6,6 +6,14 @@ resource "aws_lb" "main" {
   security_groups            = [var.alb_sg_id]
   drop_invalid_header_fields = true
 
+  access_logs {
+    bucket  = aws_s3_bucket.alb_logs.id
+    prefix  = "alb"
+    enabled = true
+  }
+
+  depends_on = [aws_s3_bucket_policy.alb_logs]
+
   tags = {
     Name = "${var.project}-alb"
   }

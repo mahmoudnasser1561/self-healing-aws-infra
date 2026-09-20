@@ -77,9 +77,20 @@ resource "aws_cloudfront_distribution" "main" {
     cloudfront_default_certificate = true
   }
 
+  logging_config {
+    bucket          = aws_s3_bucket.logs.bucket_domain_name
+    prefix          = "cloudfront/"
+    include_cookies = false
+  }
+
   tags = {
     Name = var.project
   }
+
+  depends_on = [
+    aws_s3_bucket_ownership_controls.logs,
+    aws_s3_bucket_public_access_block.logs,
+  ]
 }
 
 data "aws_iam_policy_document" "site" {
