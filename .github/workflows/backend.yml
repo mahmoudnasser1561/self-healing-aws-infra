@@ -68,9 +68,13 @@ jobs:
           account=$(aws sts get-caller-identity --query Account --output text)
           bucket="self-healing-aws-infra-app-releases-${account}"
           aws s3 cp release.tar.gz "s3://${bucket}/releases/${GITHUB_SHA}.tar.gz"
-          aws s3 cp release.tar.gz "s3://${bucket}/releases/latest.tar.gz"
+          echo "BUCKET=${bucket}" >> "$GITHUB_ENV"
 
       - name: Roll the release out one instance at a time
         env:
           ASG_NAME: self-healing-aws-infra-app
+          RELEASE: ${{ github.sha }}
         run: bash scripts/rollout.sh
+
+      - name: Promote the release to latest
+        run: aws s3 cp "s3://${BUCKET}/releases/${GITHUB_SHA}.tar.gz" "s3://${BUCKET}/releases/latest.tar.gz"

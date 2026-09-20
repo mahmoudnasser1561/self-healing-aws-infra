@@ -2,13 +2,14 @@
 set -euo pipefail
 
 : "${ASG_NAME:?ASG_NAME must be set}"
+: "${RELEASE:?RELEASE must be set}"
 attempts="${ATTEMPTS:-90}"
 interval="${INTERVAL:-10}"
 
 command_id=$(aws ssm send-command \
   --document-name AWS-RunShellScript \
   --targets "Key=tag:aws:autoscaling:groupName,Values=${ASG_NAME}" \
-  --parameters 'commands=["/usr/local/bin/deploy-release"]' \
+  --parameters "commands=[\"/usr/local/bin/deploy-release ${RELEASE}\"]" \
   --max-concurrency 1 \
   --max-errors 0 \
   --query Command.CommandId --output text)
