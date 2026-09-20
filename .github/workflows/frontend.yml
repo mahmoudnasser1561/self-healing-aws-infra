@@ -29,3 +29,46 @@ jobs:
       - run: npm test
 
       - run: npm run build
+
+  deploy-role-check:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_FRONTEND_DEPLOY_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - run: aws sts get-caller-identity
+
+  deploy:
+    needs: check
+    if: github.event_name == 'push' && vars.FRONTEND_DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run build
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_FRONTEND_DEPLOY_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Sync the build to S3 and invalidate CloudFront
+        env:
+          PROJECT: self-healing-aws-infra
+        run: bash scripts/deploy.sh dist
