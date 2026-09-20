@@ -1,4 +1,3 @@
-import contextlib
 import json
 from pathlib import Path
 
@@ -7,56 +6,39 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 
 SCHEMA = (Path(__file__).resolve().parent / "schema.sql").read_text()
-CONNECT_TIMEOUT_SECONDS = 3
 
 
 class Database:
-    def __init__(self, settings, credentials_loader=None):
-        self._settings = settings
-        self._load_credentials = credentials_loader or self._read_credentials
-        self._secrets = None
-        self._schema_ready = False
+    def __init__(self, config):
+        self.config = config
+        self.conn = None
 
-    def _read_credentials(self):
-        settings = self._settings
-        if settings.db_password:
-            return settings.db_user, settings.db_password
-        if self._secrets is None:
-            self._secrets = boto3.client(
-                "secretsmanager", region_name=settings.aws_region
-            )
-        secret = self._secrets.get_secret_value(SecretId=settings.db_secret_arn)
+    def _credentials(self):
+        if self.config.db_password:
+            return self.config.db_user, self.config.db_password
+        client = boto3.client("secretsmanager", region_name=self.config.aws_region)
+        secret = client.get_secret_value(SecretId=self.config.db_secret_arn)
         data = json.loads(secret["SecretString"])
         return data["username"], data["password"]
 
-    def _ensure_schema(self, conn):
-        if self._schema_ready:
-            return
-        with conn.cursor() as cur:
-            cur.execute(SCHEMA)
-        conn.commit()
-        self._schema_ready = True
-
-    @contextlib.contextmanager
-    def connection(self):
-        user, password = self._load_credentials()
-        settings = self._settings
+    def _connect(self):
+        user, password = self._credentials()
         conn = psycopg2.connect(
-            host=settings.db_host,
-            port=settings.db_port,
-            dbname=settings.db_name,
+            host=self.config.db_host,
+            port=self.config.db_port,
+            dbname=self.config.db_name,
             user=user,
             password=password,
-            sslmode=settings.db_sslmode,
-            connect_timeout=CONNECT_TIMEOUT_SECONDS,
+            sslmode=self.config.db_sslmode,
+            connect_timeout=3,
             cursor_factory=RealDictCursor,
         )
-        try:
-            self._ensure_schema(conn)
-            yield conn
-            conn.commit()
-        except Exception:
-            conn.rollback()
-            raise
-        finally:
-            conn.close()
+        conn.autocommit = True
+        with conn.cursor() as cur:
+            cur.execute(SCHEMA)
+        return conn
+
+    def cursor(self):
+        if self.conn is None or self.conn.closed:
+            self.conn = self._connect()
+        return self.conn.cursor()
