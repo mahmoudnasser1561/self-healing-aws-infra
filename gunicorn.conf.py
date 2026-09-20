@@ -1,6 +1,6 @@
 import os
 
-bind = "0.0.0.0:8001"
+bind = "0.0.0.0:8000"
 workers = 2
 
 log_dir = os.environ.get("APP_LOG_DIR", "/var/log/app")
