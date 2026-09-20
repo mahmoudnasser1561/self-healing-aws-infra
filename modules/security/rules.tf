@@ -27,11 +27,11 @@ resource "aws_vpc_security_group_egress_rule" "app_to_internet" {
 
 resource "aws_vpc_security_group_ingress_rule" "alb_http" {
   security_group_id = aws_security_group.alb.id
-  cidr_ipv4         = "0.0.0.0/0"
+  prefix_list_id    = data.aws_ec2_managed_prefix_list.cloudfront.id
   ip_protocol       = "tcp"
   from_port         = 80
   to_port           = 80
-  description       = "HTTP from the internet"
+  description       = "HTTP from CloudFront only"
 }
 
 resource "aws_vpc_security_group_egress_rule" "alb_to_app" {
