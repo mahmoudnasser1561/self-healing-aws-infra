@@ -21,3 +21,7 @@ output "distribution_id" {
 output "frontend_bucket" {
   value = module.frontend.frontend_bucket
 }
+
+output "waf_log_group" {
+  value = module.frontend.waf_log_group
+}

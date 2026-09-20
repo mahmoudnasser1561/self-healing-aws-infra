@@ -28,6 +28,7 @@ resource "aws_cloudfront_distribution" "main" {
   comment             = var.project
   default_root_object = "index.html"
   price_class         = "PriceClass_100"
+  web_acl_id          = aws_wafv2_web_acl.main.arn
 
   origin {
     origin_id                = local.site_origin

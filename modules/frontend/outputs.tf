@@ -9,3 +9,7 @@ output "cloudfront_domain" {
 output "distribution_id" {
   value = aws_cloudfront_distribution.main.id
 }
+
+output "waf_log_group" {
+  value = aws_cloudwatch_log_group.waf.name
+}

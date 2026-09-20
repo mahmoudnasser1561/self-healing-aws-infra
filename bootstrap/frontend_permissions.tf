@@ -52,6 +52,19 @@ data "aws_iam_policy_document" "github_actions_frontend" {
   }
 
   statement {
+    sid       = "WebAclLoggingServiceLinkedRole"
+    effect    = "Allow"
+    actions   = ["iam:CreateServiceLinkedRole"]
+    resources = ["arn:aws:iam::${local.account_id}:role/aws-service-role/wafv2.amazonaws.com/AWSServiceRoleForWAFV2Logging"]
+
+    condition {
+      test     = "StringEquals"
+      variable = "iam:AWSServiceName"
+      values   = ["wafv2.amazonaws.com"]
+    }
+  }
+
+  statement {
     sid     = "FrontendBucket"
     effect  = "Allow"
     actions = ["s3:*"]
