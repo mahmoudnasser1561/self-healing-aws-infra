@@ -44,3 +44,8 @@ variable "github_backend_branch" {
   type    = string
   default = "backend"
 }
+
+variable "github_frontend_branch" {
+  type    = string
+  default = "frontend"
+}

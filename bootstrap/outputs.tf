@@ -17,3 +17,8 @@ output "backend_deploy_role_arn" {
   description = "IAM role ARN the backend branch pipeline assumes via OIDC. Set this as the repo variable AWS_BACKEND_DEPLOY_ROLE_ARN."
   value       = aws_iam_role.backend_deploy.arn
 }
+
+output "frontend_deploy_role_arn" {
+  description = "IAM role ARN the frontend branch pipeline assumes via OIDC. Set this as the repo variable AWS_FRONTEND_DEPLOY_ROLE_ARN."
+  value       = aws_iam_role.frontend_deploy.arn
+}
