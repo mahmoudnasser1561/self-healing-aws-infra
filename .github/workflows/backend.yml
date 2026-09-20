@@ -71,28 +71,6 @@ jobs:
           aws s3 cp release.tar.gz "s3://${bucket}/releases/latest.tar.gz"
 
       - name: Roll the release out one instance at a time
-        run: |
-          command_id=$(aws ssm send-command \
-            --document-name AWS-RunShellScript \
-            --targets "Key=tag:aws:autoscaling:groupName,Values=self-healing-aws-infra-app" \
-            --parameters 'commands=["/usr/local/bin/deploy-release"]' \
-            --max-concurrency 1 \
-            --max-errors 0 \
-            --query Command.CommandId --output text)
-          echo "command ${command_id}"
-
-          for attempt in $(seq 1 90); do
-            statuses=$(aws ssm list-command-invocations \
-              --command-id "${command_id}" \
-              --query 'CommandInvocations[].Status' --output text)
-            echo "statuses: ${statuses:-none yet}"
-            if [ -n "${statuses}" ] && ! echo "${statuses}" | grep -q -E "Pending|InProgress|Delayed"; then
-              break
-            fi
-            sleep 10
-          done
-
-          if [ -z "${statuses}" ] || echo "${statuses}" | tr '\t' '\n' | grep -q -v -x "Success"; then
-            echo "deploy did not succeed on every instance"
-            exit 1
-          fi
+        env:
+          ASG_NAME: self-healing-aws-infra-app
+        run: bash scripts/rollout.sh
