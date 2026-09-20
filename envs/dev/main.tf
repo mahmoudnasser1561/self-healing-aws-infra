@@ -26,5 +26,7 @@ module "backend" {
   vpc_id            = module.networking.vpc_id
   public_subnet_ids = module.networking.public_subnet_ids
   alb_sg_id         = module.security.alb_sg_id
+  app_sg_id         = module.security.app_sg_id
+  db_address        = module.data.db_address
   db_secret_arn     = module.data.db_secret_arn
 }

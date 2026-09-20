@@ -17,3 +17,11 @@ variable "alb_sg_id" {
 variable "vpc_id" {
   type = string
 }
+
+variable "app_sg_id" {
+  type = string
+}
+
+variable "db_address" {
+  type = string
+}
