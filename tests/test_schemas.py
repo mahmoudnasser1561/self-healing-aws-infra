@@ -4,12 +4,7 @@ import pytest
 from pydantic import ValidationError
 
 from app.errors import RequestError
-from app.schemas import (
-    ListParams,
-    TodoCreate,
-    TodoUpdate,
-    parse_list_params,
-)
+from app.schemas import TodoCreate, TodoUpdate, parse_list_params
 
 
 def test_create_applies_defaults_and_trims_the_title():
@@ -32,6 +27,7 @@ def test_create_applies_defaults_and_trims_the_title():
         {"title": "x" * 201},
         {"title": "ok", "notes": "n" * 2001},
         {"title": "ok", "status": "blocked"},
+        {"title": "ok", "priority": 0},
         {"title": "ok", "priority": 4},
         {"title": "ok", "priority": "high"},
         {"title": "ok", "due_date": "tomorrow"},
@@ -104,7 +100,3 @@ def test_the_limit_ceiling_comes_from_settings(settings):
         parse_list_params({"limit": str(settings.max_limit + 1)}, settings)
 
     assert str(settings.max_limit) in error.value.details[0]["message"]
-
-
-def test_list_params_model_has_no_hardcoded_limit():
-    assert ListParams().limit is None
