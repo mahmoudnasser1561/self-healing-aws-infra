@@ -31,3 +31,10 @@ module "backend" {
   db_address        = module.data.db_address
   db_secret_arn     = module.data.db_secret_arn
 }
+
+module "frontend" {
+  source = "../../modules/frontend"
+
+  project      = var.project_name
+  alb_dns_name = module.backend.alb_dns_name
+}
