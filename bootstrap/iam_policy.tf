@@ -215,7 +215,7 @@ data "aws_iam_policy_document" "github_actions_platform" {
     condition {
       test     = "StringEquals"
       variable = "iam:PassedToService"
-      values   = ["vpc-flow-logs.amazonaws.com", "ec2.amazonaws.com"]
+      values   = ["vpc-flow-logs.amazonaws.com", "ec2.amazonaws.com", "lambda.amazonaws.com"]
     }
   }
 
