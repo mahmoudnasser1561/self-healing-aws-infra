@@ -12,6 +12,9 @@ permissions:
   id-token: write
   contents: read
 
+env:
+  TF_VAR_alert_email: ${{ vars.ALERT_EMAIL }}
+
 jobs:
   plan:
     runs-on: ubuntu-latest
