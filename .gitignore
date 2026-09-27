@@ -22,3 +22,4 @@ input.json
 *.zip
 __pycache__/
 .pytest_cache/
+chaos/results.log
