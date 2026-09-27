@@ -92,6 +92,8 @@ data "aws_iam_policy_document" "github_actions_selfheal" {
       "iam:GetRole",
       "iam:GetServiceLinkedRoleDeletionStatus",
       "iam:ListRoleTags",
+      "iam:TagRole",
+      "iam:UntagRole",
     ]
     resources = ["arn:aws:iam::${local.account_id}:role/aws-service-role/config.amazonaws.com/AWSServiceRoleForConfig"]
   }
