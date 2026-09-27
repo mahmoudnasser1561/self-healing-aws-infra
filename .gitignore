@@ -17,3 +17,8 @@ override.tf.json
 
 /README.md
 /docs/
+input.json
+
+*.zip
+__pycache__/
+.pytest_cache/
