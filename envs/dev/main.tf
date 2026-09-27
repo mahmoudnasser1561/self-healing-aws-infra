@@ -38,3 +38,10 @@ module "frontend" {
   project      = var.project_name
   alb_dns_name = module.backend.alb_dns_name
 }
+
+module "detection" {
+  source = "../../modules/detection"
+
+  project      = var.project_name
+  create_trail = var.create_trail
+}

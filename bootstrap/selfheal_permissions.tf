@@ -71,6 +71,65 @@ data "aws_iam_policy_document" "github_actions_selfheal" {
   }
 
   statement {
+    sid       = "ConfigService"
+    effect    = "Allow"
+    actions   = ["config:*"]
+    resources = ["*"]
+
+    condition {
+      test     = "StringEquals"
+      variable = "aws:RequestedRegion"
+      values   = [var.aws_region]
+    }
+  }
+
+  statement {
+    sid    = "ConfigServiceLinkedRole"
+    effect = "Allow"
+    actions = [
+      "iam:CreateServiceLinkedRole",
+      "iam:DeleteServiceLinkedRole",
+      "iam:GetRole",
+      "iam:GetServiceLinkedRoleDeletionStatus",
+      "iam:ListRoleTags",
+    ]
+    resources = ["arn:aws:iam::${local.account_id}:role/aws-service-role/config.amazonaws.com/AWSServiceRoleForConfig"]
+  }
+
+  statement {
+    sid       = "ConfigPassRole"
+    effect    = "Allow"
+    actions   = ["iam:PassRole"]
+    resources = ["arn:aws:iam::${local.account_id}:role/aws-service-role/config.amazonaws.com/AWSServiceRoleForConfig"]
+
+    condition {
+      test     = "StringEquals"
+      variable = "iam:PassedToService"
+      values   = ["config.amazonaws.com"]
+    }
+  }
+
+  statement {
+    sid     = "EventCaptureLogGroups"
+    effect  = "Allow"
+    actions = ["logs:*"]
+    resources = [
+      "arn:aws:logs:${var.aws_region}:${local.account_id}:log-group:/aws/events/${var.project}-*",
+      "arn:aws:logs:${var.aws_region}:${local.account_id}:log-group:/aws/events/${var.project}-*:*",
+    ]
+  }
+
+  statement {
+    sid     = "ConfigBucket"
+    effect  = "Allow"
+    actions = ["s3:*"]
+    resources = [
+      "arn:aws:s3:::${var.project}-config-*",
+      "arn:aws:s3:::${var.project}-config-*/*",
+    ]
+  }
+
+  statement {
     sid     = "TrailBucket"
     effect  = "Allow"
     actions = ["s3:*"]
