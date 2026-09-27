@@ -193,7 +193,12 @@ def test_ec2_1_sets_http_tokens_back_to_required(monkeypatch):
     fake = FakeEC2(http_tokens="optional")
     monkeypatch.setattr(rules, "ec2", fake)
 
-    result = rules.fix_imdsv2(event("ModifyInstanceMetadataOptions", instanceId="i-1"))
+    result = rules.fix_imdsv2(
+        event(
+            "ModifyInstanceMetadataOptions",
+            ModifyInstanceMetadataOptionsRequest={"InstanceId": "i-1"},
+        )
+    )
 
     assert result is not None
     assert fake.modify_calls == [
@@ -205,7 +210,12 @@ def test_ec2_1_leaves_a_hardened_instance_alone(monkeypatch):
     fake = FakeEC2(http_tokens="required")
     monkeypatch.setattr(rules, "ec2", fake)
 
-    result = rules.fix_imdsv2(event("ModifyInstanceMetadataOptions", instanceId="i-1"))
+    result = rules.fix_imdsv2(
+        event(
+            "ModifyInstanceMetadataOptions",
+            ModifyInstanceMetadataOptionsRequest={"InstanceId": "i-1"},
+        )
+    )
 
     assert result is None
     assert fake.modify_calls == []
@@ -215,7 +225,12 @@ def test_ec2_1_ignores_an_instance_outside_the_project(monkeypatch):
     fake = FakeEC2(http_tokens="optional", tagged=False)
     monkeypatch.setattr(rules, "ec2", fake)
 
-    result = rules.fix_imdsv2(event("ModifyInstanceMetadataOptions", instanceId="i-1"))
+    result = rules.fix_imdsv2(
+        event(
+            "ModifyInstanceMetadataOptions",
+            ModifyInstanceMetadataOptionsRequest={"InstanceId": "i-1"},
+        )
+    )
 
     assert result is None
     assert fake.modify_calls == []

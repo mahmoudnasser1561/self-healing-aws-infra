@@ -85,7 +85,12 @@ def fix_public_rds(detail):
 
 
 def fix_imdsv2(detail):
-    instance_id = detail["requestParameters"]["instanceId"]
+    # CloudTrail nests this one call's parameters one level deeper than the
+    # other four rules, inside ModifyInstanceMetadataOptionsRequest -- see
+    # input.json's captured EC2-1 event.
+    instance_id = detail["requestParameters"]["ModifyInstanceMetadataOptionsRequest"][
+        "InstanceId"
+    ]
     instance = ec2.describe_instances(InstanceIds=[instance_id])
     instance = instance["Reservations"][0]["Instances"][0]
     if not has_project_tag(instance.get("Tags")):
