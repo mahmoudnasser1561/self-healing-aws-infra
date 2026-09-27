@@ -12,3 +12,8 @@ variable "create_trail" {
   type    = bool
   default = true
 }
+
+variable "alert_email" {
+  type    = string
+  default = ""
+}

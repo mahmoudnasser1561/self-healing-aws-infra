@@ -34,10 +34,10 @@ output "cloudfront_logs_bucket" {
   value = module.frontend.cloudfront_logs_bucket
 }
 
-output "capture_log_groups" {
-  value = module.detection.capture_log_groups
-}
-
 output "config_rule_names" {
   value = module.detection.config_rule_names
+}
+
+output "remediate_function" {
+  value = module.remediation.remediate_function
 }

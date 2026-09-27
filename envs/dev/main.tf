@@ -45,3 +45,14 @@ module "detection" {
   project      = var.project_name
   create_trail = var.create_trail
 }
+
+module "remediation" {
+  source = "../../modules/remediation"
+
+  project     = var.project_name
+  alert_email = var.alert_email
+
+  trigger_rules = {
+    api_writes = module.detection.api_writes_rule
+  }
+}
