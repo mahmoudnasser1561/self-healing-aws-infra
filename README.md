@@ -87,14 +87,14 @@ Every module, security-group rule and IAM scope is described in [docs/infra.md](
 ```mermaid
 sequenceDiagram
     autonumber
-    participant Actor as Human or script
+    participant Caller as Human or script
     participant AWS as AWS API
     participant CT as CloudTrail
     participant EB as EventBridge
     participant L as Remediation Lambda
     participant SNS as SNS email
 
-    Actor->>AWS: DeleteBucketPublicAccessBlock (T0 = CloudTrail eventTime)
+    Caller->>AWS: DeleteBucketPublicAccessBlock (T0 = CloudTrail eventTime)
     AWS->>CT: management event
     CT->>EB: event on the default bus
     EB->>L: rule "api-writes" matches, async invoke
