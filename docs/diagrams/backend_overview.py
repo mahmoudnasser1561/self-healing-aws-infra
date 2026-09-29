@@ -68,8 +68,9 @@ def runtime():
                 a = icon(EC2, "Instance A", "zone a", "gunicorn :8000")
                 b = icon(EC2, "Instance B", "zone b", "gunicorn :8000")
 
-            with box("Private data subnets", "ok", just="r") as data:
-                db = icon(RDS, "RDS PostgreSQL", "port 5432")
+            with box("Private data subnets · Multi-AZ", "ok", just="r") as data:
+                db = icon(RDS, "RDS PostgreSQL", "primary, zone a", "port 5432")
+                db_standby = icon(RDS, "RDS PostgreSQL", "standby, zone b")
 
         services = services_card(
             "AWS services, over HTTPS",
@@ -87,12 +88,13 @@ def runtime():
         cdn >> link("/api/*  over HTTP", FLOW) >> alb
         alb >> link("port 8000", FLOW, lhead=asg.name) >> a
         b >> link("port 5432", FLOW, ltail=asg.name, lhead=data.name) >> db
+        db >> link("synchronous replication", OK, "dashed") >> db_standby
         b >> link("egress", GREY, ltail=asg.name, constraint="false") >> nat
         nat >> link("port 443", GREY, constraint="false") >> services
 
-        for left, right in ((waf, cdn), (cdn, site), (alb, nat), (nat, services), (a, b)):
+        for left, right in ((waf, cdn), (cdn, site), (alb, nat), (nat, services), (a, b), (db, db_standby)):
             left >> Edge(style="invis") >> right
-        for group in ((waf, cdn, site), (alb, nat, services), (a, b)):
+        for group in ((waf, cdn, site), (alb, nat, services), (a, b), (db, db_standby)):
             d.dot.body.append("\t{rank=same; " + "; ".join(f'"{n._id}"' for n in group) + "}")
 
 
